@@ -19,7 +19,24 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
     const appointmentCollection = client.db("doctorsPortal").collection("appointments");
-    // const orderCollection = client.db("shopdb").collection("orders");
+    app.post('/appointment', (req, res) => {
+        const appointment = req.body;
+        appointmentCollection.insertOne(appointment)
+        .then(result => {
+            res.send(result.insertedCount > 0);
+        })
+    })
+
+    app.post('/appointmentsByDate', (req, res) => {
+        const date = req.body;
+        console.log(date.date);
+        appointmentCollection.find({date: date})
+        .toArray((err, documents) => {
+            res.send(documents);
+        })
+    })
 });
 
-app.listen(process.env.PORT || port)
+app.listen(process.env.PORT || port, () => {
+    console.log("SERVER HAS STARTED!!!");
+})
